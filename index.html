@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="FLORA & SPORT">
+    <meta name="format-detection" content="telephone=no">
+    
+    <title>FLORA & SPORT - Delovni nalogi v4.0</title>
+    
+    <style>
+        :root {
+            --ral-3016: #B32821; /* Koralno rdeča */
+            --ral-3016-hover: #9a221c;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: #f5f5f5;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        
+        input, select, textarea {
+            -webkit-appearance: none;
+            appearance: none;
+            border-radius: 8px;
+            font-size: 16px;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            width: 100%;
+            background-color: white;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--ral-3016);
+            box-shadow: 0 0 0 2px rgba(179, 40, 33, 0.2);
+        }
+        
+        input:required, select:required {
+            border-left: 3px solid var(--ral-3016);
+        }
+        
+        input:required:invalid, select:required:invalid {
+            border-left-color: #ef4444; 
+        }
+        
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            padding-right: 35px;
+        }
+
+        /* --- UI IZBOLJŠAVA: MULTI-SELECT DROPDOWN --- */
+        .multi-select-container { position: relative; width: 100%; }
+        .multi-select-header {
+            border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; background-color: white;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            font-size: 16px; color: #6b7280; border-left: 3px solid var(--ral-3016);
+        }
+        .multi-select-header.has-selection { color: #000; }
+        .multi-select-header::after {
+            content: ""; width: 12px; height: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat; background-position: center; transition: transform 0.2s;
+        }
+        .multi-select-dropdown {
+            position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #d1d5db;
+            border-radius: 8px; margin-top: 4px; max-height: 280px; overflow-y: auto; z-index: 1000; display: none;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .multi-select-dropdown.show { display: block; }
+        .multi-select-option { padding: 12px 16px; display: flex; align-items: center; border-bottom: 1px solid #f3f4f6; cursor: pointer; transition: background-color 0.1s; }
+        .multi-select-option:hover { background-color: #fef2f2; }
+        .multi-select-option:last-child { border-bottom: none; }
+        .multi-select-option input[type="checkbox"] { margin-right: 12px; pointer-events: none; }
+        
+        input[type="checkbox"] {
+            -webkit-appearance: checkbox; appearance: checkbox; width: 20px; height: 20px; margin-right: 8px;
+            accent-color: var(--ral-3016); cursor: pointer;
+        }
+        
+        button {
+            -webkit-appearance: none; appearance: none; padding: 14px 20px; border-radius: 8px; border: none;
+            font-size: 16px; font-weight: 600; cursor: pointer; min-height: 48px; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        button:active { opacity: 0.8; transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .container { max-width: 896px; margin: 0 auto; padding: 16px; }
+        
+        .header { background: var(--ral-3016); color: white; padding: 24px; text-align: center; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        .card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #374151; }
+        
+        .section-header { 
+            background-color: #f3f4f6; padding: 12px 16px; border-radius: 8px; font-size: 16px; font-weight: 700; 
+            margin-bottom: 16px; border-left: 4px solid var(--ral-3016); display: flex; align-items: center; gap: 10px; color: #111827; 
+        }
+        
+        /* Ikone */
+        svg.icon-ral { width: 22px; height: 22px; stroke: var(--ral-3016); fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+        svg.icon-btn { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+        .checkbox-group { border: 1px solid #d1d5db; border-radius: 8px; padding: 12px; }
+        .checkbox-item { display: flex; align-items: center; padding: 8px 0; cursor: pointer; }
+        
+        .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        .row-three { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+        
+        .button-group { display: flex; flex-direction: column; gap: 12px; margin-top: 24px; }
+        @media (min-width: 640px) { .button-group { flex-direction: row; } }
+        
+        .btn-primary { background-color: var(--ral-3016); color: white; flex: 2; }
+        .btn-primary:hover { background-color: var(--ral-3016-hover); }
+        .btn-secondary { background-color: #4b5563; color: white; flex: 1; }
+        .btn-secondary:hover { background-color: #374151; }
+        .btn-add { background-color: #f3f4f6; color: #374151; border: 1px dashed #9ca3af; margin-bottom: 12px; }
+        .btn-add:hover { background-color: #e5e7eb; border-color: var(--ral-3016); color: var(--ral-3016); }
+        
+        textarea { -webkit-appearance: none; resize: vertical; min-height: 80px; }
+        .equipment-item, .material-item { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px; padding: 8px; background: #f9fafb; border-radius: 6px; }
+        
+        .status-message { padding: 12px; border-radius: 8px; margin-bottom: 16px; font-weight: 500; text-align: center; }
+        .status-success { background-color: #fef2f2; color: var(--ral-3016); border: 1px solid #fca5a5; } 
+        .status-error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        input[type="file"] { padding: 8px; border: 2px dashed #d1d5db; background-color: #f9fafb; cursor: pointer; }
+        input[type="file"]:hover { border-color: var(--ral-3016); background-color: #fef2f2; }
+
+        .photo-preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 12px; }
+        .photo-preview-item { position: relative; border-radius: 8px; overflow: hidden; border: 2px solid #e5e7eb; background-color: #f9fafb; transition: transform 0.2s; }
+        .photo-preview-item:hover { transform: translateY(-2px); border-color: var(--ral-3016); }
+        .photo-preview-item img { width: 100%; height: 140px; object-fit: cover; display: block; }
+        .photo-preview-item .remove-photo { position: absolute; top: 4px; right: 4px; background-color: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; min-height: auto; }
+        .photo-preview-item .remove-photo:hover { background-color: #ef4444; }
+        .photo-preview-item .photo-caption { padding: 8px; background-color: white; }
+        .photo-preview-item .photo-caption input { font-size: 12px; padding: 6px; border: 1px solid #e5e7eb; }
+        
+        @media (max-width: 640px) {
+            .row, .row-three { grid-template-columns: 1fr; }
+            .equipment-item, .material-item { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                FLORA & SPORT
+            </h1>
+            <p>Delovni nalogi</p>
+        </div>
+
+        <div id="statusMessage"></div>
+
+        <form id="workOrderForm">
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    Osnovni podatki
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label" for="narocnik">Naročnik dela *</label>
+                    <input type="text" id="narocnik" name="narocnik" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="komercialist">Komercialist *</label>
+                    <select id="komercialist" name="komercialist" required>
+                        <option value="">Izberite...</option>
+                        <option value="Matjaž Kumer">Matjaž Kumer</option>
+                        <option value="Darja Brzin">Darja Brzin</option>
+                        <option value="Daniel Cvelbar">Daniel Cvelbar</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="datum">Datum opravljene storitve *</label>
+                    <input type="date" id="datum" name="datum" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="projekt">Projekt (kraj in naziv)</label>
+                    <input type="text" id="projekt" name="projekt" placeholder="npr. Ljubljana - Osnovna šola Bežigrad">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+                    Vrsta dela
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="vrstaDela_nova" name="vrstaDela_nova" value="Izdelava nove podlage">
+                        <span>Izdelava nove podlage</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="vrstaDela_obnova" name="vrstaDela_obnova" value="Obnova podlage">
+                        <span>Obnova podlage</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+                    Sistem
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="sistem">Izberite sistem</label>
+                    <select id="sistem" name="sistem" onchange="updateSistemSelection()" required>
+                        <option value="">Izberite...</option>
+                        <option value="GUMAFLOR (PG)">GUMAFLOR (PG)</option>
+                        <option value="EPDM">EPDM (večnamenska športna podlaga)</option>
+                        <option value="SP">SP (spray)</option>
+                        <option value="SC">SC (stone carpet)</option>
+                        <option value="SW">SW (sandwich)</option>
+                        <option value="PS">PS (j-base)</option>
+                        <option value="PS+SP">PS + SP (j-base + spray)</option>
+                        <option value="PS+SBR+SP">PS + SBR + SP (j-base + SBR + spray)</option>
+                        <option value="Drugo">Drugo</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="sistemDrugoGroup" style="display: none;">
+                    <label class="form-label" for="sistemDrugo">Drugo - opis sistema</label>
+                    <input type="text" id="sistemDrugo" name="sistemDrugo">
+                </div>
+            </div>
+
+            <div class="card" id="fazeCard" style="display: none;">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    Faze sistema - <span id="sistemNaziv" style="margin-left:6px; font-weight:normal;"></span>
+                </div>
+                <div class="checkbox-group" id="fazeContainer">
+                    </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Prisotni delavci *
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Izberite prisotne delavce</label>
+                    <div class="multi-select-container" id="delavciMultiSelect">
+                        <div class="multi-select-header" onclick="toggleDelavciDropdown(event)" id="delavciSelectHeader">
+                            Izberite delavce...
+                        </div>
+                        <div class="multi-select-dropdown" id="delavciDropdownList">
+                            </div>
+                    </div>
+                </div>
+
+                <div id="delavciTimeContainer" style="margin-top: 16px;">
+                    </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+                    Potni nalog
+                </div>
+                <div id="vozilaContainer"></div>
+                <button type="button" class="btn-add" onclick="addVozilo()" style="width: 100%;">
+                    <svg class="icon-btn" style="stroke: currentColor;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Dodaj vozilo
+                </button>
+
+                <div class="row" style="margin-top: 16px;">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="prikolica_velika" name="prikolica_velika" value="da">
+                        <span>Prikolica velika</span>
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="prikolica_mala" name="prikolica_mala" value="da">
+                        <span>Prikolica mala</span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Dodatne opombe o potnem nalogu</label>
+                    <textarea name="potniNalogOpombe" rows="2"></textarea>
+                </div>
+            </div>
+
+            <div id="dynamicSections"></div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    Odpadki
+                </div>
+                <div id="odpadkiContainer"></div>
+                <button type="button" class="btn-add" onclick="addOdpadek()" style="width: 100%;">
+                    <svg class="icon-btn" style="stroke: currentColor;" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Dodaj odpadek
+                </button>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><path d="M20 14.66V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h5.34"></path><polygon points="18 2 22 6 12 16 8 16 8 12 18 2"></polygon></svg>
+                    Opombe
+                </div>
+                <div class="form-group">
+                    <textarea id="opombe" name="opombe" placeholder="Dodatne opombe ali pojasnila..."></textarea>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                    Fotografije
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Dodaj fotografije (max 10)</label>
+                    <input type="file" id="photoInput" accept="image/*" multiple capture="environment" onchange="handlePhotoUpload(event)">
+                    <small style="color: #6b7280; display: block; margin-top: 6px;">
+                        Slike se avtomatsko optimizirajo za hitrejši prenos.
+                    </small>
+                </div>
+                <div id="photoPreviewContainer"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-header">
+                    <svg class="icon-ral" viewBox="0 0 24 24"><path d="M12 19l7-7 3 3-7 7-3-3z"></path><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="M2 2l7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+                    Zaključek
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="podpis">Podpis odgovornega delavca *</label>
+                    <select id="podpis" name="podpis" required>
+                        <option value="">Izberite odgovornega delavca...</option>
+                        </select>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="btn-primary" onclick="generateAndSend()">
+                    <svg class="icon-btn" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    Oddaj delovni nalog
+                </button>
+                <button type="button" class="btn-secondary" onclick="resetForm()">
+                    <svg class="icon-btn" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+                    Začni znova
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // TUKAJ JE VNESEN TVOJ NOVI LINK DO WEB APLIKACIJE:
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwmZYsZjVHmrl5B8Ke4G_hXQJcX9P2MZug8oMrqXga-4-mbljXOBBJmTlfhuh6eScz5/exec';
+
+        let DELAVCI = [
+            'Deni Boskovski', 'Stojan Finkovski', 'Marjančo Jovanov',
+            'Goran Velkovski', 'Alban Basha', 'Nezir', 'Mani',
+            'Daniel Cvelbar', 'Filip Kumer'
+        ];
+
+        const VOZILA = ['Ford Transit KR LH-350', 'Renault Master KR AA-131', 'MAN TGM KR JR-085'];
+        const ODPADKI = [
+            { name: 'Folija', unit: 'kg' }, { name: 'Sodi', unit: 'kos' },
+            { name: 'Stara podlaga', unit: 'm³' }, { name: 'Palete', unit: 'kos' }, { name: 'Smeti', unit: 'kg' }
+        ];
+
+        const FAZE_PO_SISTEMIH = {
+            'GUMAFLOR (PG)': ['Priprava podlage', 'Odstranjevanje obstoječe podlage', 'SBR', 'EPDM', 'Liniranje', 'Vgradnja likov', 'Zaščita objekta in infrastrukture na objektu', 'Odstranitev zaščite in čiščenje objekta'],
+            'EPDM': ['Priprava podlage', 'Odstranjevanje obstoječe podlage', 'Zaščita objekta in infrastrukture na objektu', 'EPDM', 'Liniranje', 'Odstranitev zaščite in čiščenje objekta'],
+            'SP': ['Priprava podlage', 'Odstranjevanje obstoječe podlage', 'SBR', 'Popravilo in priprava SBR', 'Zaščita objekta in infrastrukture na objektu', 'SPRAY (špric)', 'Odstranitev zaščite in čiščenje objekta', 'Liniranje'],
+            'SC': ['Priprava podlage', 'Odstranjevanje obstoječe podlage', 'Zaščita objekta in infrastrukture na objektu', '1. faza', '2. faza', 'Odstranitev zaščite in čiščenje objekta', 'Izdelava dilatacij'],
+            'SW': ['Priprava podlage', 'Odstranjevanje obstoječe podlage', 'Zaščita objekta in infrastrukture na objektu', 'SBR', 'Kitanje', 'Nanos zaključnega sloja', 'Odstranitev odvečnega EPDM granulata', 'Liniranje', 'Odstranitev zaščite in čiščenje objekta'],
+            'PS': ['Priprava podlage', 'Odstranjevanje obstoječe podlage', 'Zaščita objekta in infrastrukture na objektu', 'PS (j-base)', 'Odstranitev zaščite in čiščenje objekta'],
+            'PS+SP': ['Priprava podlage', 'Odstranjevanje podlage', 'Zaščita objekta in infrastrukture na objektu', 'PS (j-base)', 'Spray', 'Liniranje', 'Pospravilo in čiščenje'],
+            'PS+SBR+SP': ['Priprava podlage', 'Odstranjevanje podlage', 'Zaščita objekta in infrastrukture na objektu', 'PS (j-base)', 'SBR', 'Spray', 'Odstranitev zaščite in čiščenje objekta', 'Liniranje']
+        };
+
+        const STROJI_PO_FAZAH = {
+            'SBR': ['SMG finišer mali 180 cm', 'SMG finišer veliki avtomatik 270 cm', 'SMG finišer veliki 270 cm', 'SMG mešalec veliki 200 l', 'Baron mali 120 l', 'Baron veliki 200 l', 'Agregat', 'Pihalnik', 'Viličar', 'Ročni mešalnik', 'Malo električno orodje', 'SMG mešalec električni', 'Prekucnik Gani Ferrari'],
+            'EPDM': ['SMG finišer mali 180 cm', 'SMG finišer veliki avtomatik 270 cm', 'SMG finišer veliki 270 cm', 'SMG mešalec veliki 200 l', 'Baron mali 120 l', 'Baron veliki 200 l', 'Agregat', 'Pihalnik', 'Malo električno orodje', 'SMG mešalec električni', 'Viličar', 'Prekucnik Gani Ferrari'],
+            'SPRAY (špric)': ['SMG špric mašina', 'Ročni mešalnik', 'Pihalnik', 'Agregat', 'Malo električno orodje', 'SMG rotomatic', 'Brusilka velika', 'Viličar', 'Prekucnik Gani Ferrari'],
+            'Spray': ['SMG špric mašina', 'Ročni mešalnik', 'Pihalnik', 'Agregat', 'Malo električno orodje', 'SMG rotomatic', 'Brusilka velika', 'Viličar', 'Prekucnik Gani Ferrari'],
+            '1. faza': ['SMG finišer veliki 270 cm', 'SMG finišer mali 180 cm', 'SMG mešalec 200 l', 'Baron mali 120 l', 'Baron veliki 200 l', 'Agregat', 'Ročni mešalnik', 'Prekucnik Gani Ferrari', 'Viličar', 'Pihalnik', 'Malo električno orodje'],
+            '2. faza': ['SMG finišer veliki 270 cm', 'SMG finišer mali 180 cm', 'SMG mešalec 200 l', 'Baron mali 120 l', 'Baron veliki 200 l', 'Malo električno orodje', 'Agregat', 'Pihalnik', 'Ročni mešalnik', 'Prekucnik Gani Ferrari', 'Viličar'],
+            'Kitanje': ['SMG finišer veliki 270 cm z nastavkom za kitanje', 'Ročni mešalnik', 'SMG mešalec M930', 'Malo električno orodje', 'Pihalnik', 'Agregat', 'Viličar', 'Prekucnik Gani Ferrari'],
+            'Nanos zaključnega sloja': ['SMG mešalec M930', 'Ročni mešalnik', 'Agregat', 'Pometač strojni', 'Pometač ročni', 'Pihalnik', 'Malo električno orodje', 'Viličar', 'Prekucnik Gani Ferrari'],
+            'PS (j-base)': ['SMG finišer veliki avtomatik 270 cm', 'SMG finišer veliki 270 cm', 'SMG finišer mali 180 cm', 'SMG veliki mešalec 200 l', 'Baron mali 120 l', 'Baron veliki 200 l', 'Ročni mešalnik', 'Agregat', 'Pihalnik', 'Malo električno orodje', 'Viličar', 'Prekucnik Gani Ferrari'],
+            'Liniranje': ['SMG linirka starline', 'Pihalnik', 'Malo električno orodje', 'Agregat', 'SMG linirka'],
+            'Izdelava dilatacij': ['Velika rezilka', 'Manjše električno orodje'],
+            'Odstranitev odvečnega EPDM granulata': ['Pometač strojni'],
+            'Lakiranje': ['Ročni mešalnik', 'Agregat', 'Pihalnik', 'Malo električno orodje', 'SMG mešalec M930']
+        };
+
+        const MATERIALI_PO_FAZAH = {
+            'SBR': [{ name: 'Osnovno vezivo', unit: 'kg', type: 'text-number' }, { name: 'SBR granulat', unit: 'kg', type: 'dropdown-number', options: ['0,5-2,5 mm', '1-4 mm', '1-6 mm'] }, { name: 'Lepilo', unit: 'kg', type: 'text-number' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Folija', unit: 'kg', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }],
+            'EPDM': [{ name: 'Osnovno vezivo', unit: 'kg', type: 'text-number' }, { name: 'EPDM 0,5-1,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'EPDM 1-3,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Lepilo', unit: 'kg', type: 'text-number' }, { name: 'Smutie Tetrapur W', unit: 'kg', type: 'number' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Folija', unit: 'kg', type: 'number' }],
+            'SPRAY (špric)': [{ name: 'EPDM granule 0,5-1,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Prah 0,0-0,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Lepilo 1', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 2', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Folija', unit: 'm²', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }],
+            'Spray': [{ name: 'EPDM granule 0,5-1,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Prah 0,0-0,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Lepilo 1', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 2', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Folija', unit: 'm²', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }],
+            '1. faza': [{ name: 'Pesek', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 1', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 2', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Folija', unit: 'kg', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }],
+            '2. faza': [{ name: 'Pesek', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 1', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 2', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Ballotini', unit: 'kg', type: 'number' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Folija', unit: 'kg', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }],
+            'Kitanje': [{ name: 'Lepilo komponenta A', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo komponenta B', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'EPDM prah', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Folija', unit: 'm²', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }],
+            'Nanos zaključnega sloja': [{ name: 'Lepilo komponenta A', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo komponenta B', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'EPDM granulat 1-3,5 mm', unit: 'kg', type: 'text-number', label: 'RAL' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Folija', unit: 'm²', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }],
+            'PS (j-base)': [{ name: 'SBR granulat', unit: 'kg', type: 'dropdown-number', options: ['1-4 mm', '1-6 mm', '2-8 mm'] }, { name: 'Pesek 1', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Pesek 2', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 1', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Lepilo 2', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Folija', unit: 'm²', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }],
+            'Liniranje': [{ name: 'Barva 1', unit: 'kg', type: 'text-text-number', label1: 'Vrsta', label2: 'RAL' }, { name: 'Barva 2', unit: 'kg', type: 'text-text-number', label1: 'Vrsta', label2: 'RAL' }, { name: 'Barva 3', unit: 'kg', type: 'text-text-number', label1: 'Vrsta', label2: 'RAL' }, { name: 'Trdilec', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Razredčilo', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Kreda', unit: 'paketi', type: 'number' }, { name: 'Kreda v prahu', unit: 'kg', type: 'number' }, { name: 'Spraj', unit: 'kos', type: 'text-number', label: 'RAL' }],
+            'Izdelava dilatacij': [{ name: 'Kit', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Dilatacijska pena', unit: 'm', type: 'text-number', label: 'Debelina' }],
+            'Lakiranje': [{ name: 'Lak', unit: 'kg', type: 'text-number', label: 'Vrsta' }, { name: 'Nafta', unit: 'l', type: 'number' }, { name: 'Bencin', unit: 'l', type: 'number' }, { name: 'Lepilni trak', unit: 'kos', type: 'number' }, { name: 'Folija', unit: 'm²', type: 'number' }, { name: 'Čistilo Tetrapur B', unit: 'kg', type: 'number' }]
+        };
+
+        let vozilaCount = 0;
+        let odpadkiCount = 0;
+        let uploadedPhotos = [];
+        let selectedFaze = [];
+        let selectedDelavci = new Set(); 
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('datum').valueAsDate = new Date();
+            addVozilo();
+            addOdpadek();
+            renderDelavciDropdown();
+            
+            const podpisSelect = document.getElementById('podpis');
+            podpisSelect.innerHTML += DELAVCI.map(d => `<option value="${d}">${d}</option>`).join('');
+            podpisSelect.innerHTML += `<option value="Drugo">Drugo</option>`;
+        });
+
+        // --- CUSTOM MULTI-SELECT IN AUTO-FILL UR ---
+        function toggleDelavciDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('delavciDropdownList').classList.toggle('show');
+        }
+
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('delavciDropdownList');
+            const container = document.getElementById('delavciMultiSelect');
+            if (dropdown && container && !container.contains(e.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        function renderDelavciDropdown() {
+            const container = document.getElementById('delavciDropdownList');
+            let html = DELAVCI.map(d => `
+                <label class="multi-select-option">
+                    <input type="checkbox" id="check_${sanitize(d)}" value="${d}" onchange="handleDelavecChange('${d}', this.checked)" ${selectedDelavci.has(d) ? 'checked' : ''}>
+                    <span>${d}</span>
+                </label>
+            `).join('');
+            
+            // Nov gumb za ročni dodatek delavca
+            html += `
+                <div class="multi-select-option" style="border-top: 1px solid #d1d5db; background: #fef2f2; color: var(--ral-3016); font-weight: bold; justify-content: center;" onclick="addCustomDelavec(event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Dodaj drugega (ročni vnos)
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        // Funkcija za ročni vnos delavca
+        function addCustomDelavec(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            const ime = prompt("Vnesite ime in priimek novega delavca:");
+            
+            if (ime && ime.trim() !== '') {
+                const cleanIme = ime.trim();
+                
+                if (!DELAVCI.includes(cleanIme)) {
+                    DELAVCI.push(cleanIme);
+                    
+                    // Dodaj ga tudi v dropdown za podpis (na dnu, pred "Drugo")
+                    const podpisSelect = document.getElementById('podpis');
+                    const option = document.createElement('option');
+                    option.value = cleanIme;
+                    option.text = cleanIme;
+                    
+                    const zadnjaOpcija = podpisSelect.options[podpisSelect.options.length - 1];
+                    if (zadnjaOpcija && zadnjaOpcija.value === 'Drugo') {
+                        podpisSelect.insertBefore(option, zadnjaOpcija);
+                    } else {
+                        podpisSelect.appendChild(option);
+                    }
+                }
+                
+                // Takoj ga dodaj med izbrane in osveži prikaz
+                selectedDelavci.add(cleanIme);
+                renderDelavciDropdown();
+                updateDelavciHeader();
+                renderDelavciTimeInputs();
+            }
+        }
+
+        function handleDelavecChange(delavecName, isChecked) {
+            if (isChecked) {
+                selectedDelavci.add(delavecName);
+            } else {
+                selectedDelavci.delete(delavecName);
+            }
+            updateDelavciHeader();
+            renderDelavciTimeInputs();
+        }
+
+        function updateDelavciHeader() {
+            const header = document.getElementById('delavciSelectHeader');
+            if (selectedDelavci.size === 0) {
+                header.textContent = 'Izberite delavce...';
+                header.classList.remove('has-selection');
+            } else {
+                const names = Array.from(selectedDelavci).join(', ');
+                header.textContent = names.length > 35 ? `${selectedDelavci.size} izbranih delavcev` : names;
+                header.classList.add('has-selection');
+            }
+        }
+
+        function renderDelavciTimeInputs() {
+            const container = document.getElementById('delavciTimeContainer');
+            if (selectedDelavci.size === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="background: #fef2f2; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                    <strong style="color: var(--ral-3016);">✅ Izbrani delavci (${selectedDelavci.size})</strong>
+                </div>
+                ${Array.from(selectedDelavci).map(delavec => `
+                    <div class="row" style="background: #fafafa; padding: 12px; border-radius: 8px; margin-bottom: 8px; border-left: 3px solid #d1d5db;">
+                        <div style="display:flex; align-items:center;">
+                            <label class="form-label" style="margin:0;">${delavec}</label>
+                            <input type="hidden" name="delavec_name[]" value="${delavec}">
+                        </div>
+                        <div>
+                            <div style="display: grid; grid-template-columns: 1fr auto 1fr; gap: 4px; align-items: center;">
+                                <input type="number" min="0" max="23" step="1" inputmode="numeric" 
+                                       name="delavec_ure[]" placeholder="Ur" 
+                                       oninput="syncWorkerTimes(this, 'ure')"
+                                       style="text-align: center;" required>
+                                <span style="font-weight: bold;">:</span>
+                                <input type="number" min="0" max="59" step="1" inputmode="numeric" 
+                                       name="delavec_min[]" placeholder="Min" 
+                                       oninput="syncWorkerTimes(this, 'min')"
+                                       style="text-align: center;">
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function syncWorkerTimes(changedInput, type) {
+            const val = changedInput.value;
+            if (val === '') return; 
+            const nameAttr = type === 'ure' ? 'delavec_ure[]' : 'delavec_min[]';
+            const allInputs = document.getElementsByName(nameAttr);
+            
+            allInputs.forEach(input => {
+                if (input !== changedInput && input.value === '') {
+                    input.value = val;
+                }
+            });
+        }
+
+        function convertTimeToDecimal(hours, minutes) {
+            const h = parseInt(hours) || 0;
+            const m = parseInt(minutes) || 0;
+            return h + (m / 60);
+        }
+
+        // --- PREOSTALA LOGIKA ---
+        function addVozilo() {
+            const container = document.getElementById('vozilaContainer');
+            const index = vozilaCount++;
+            const div = document.createElement('div');
+            div.className = 'row';
+            div.innerHTML = `
+                <div>
+                    <label class="form-label">Vozilo ${index + 1}</label>
+                    <select name="vozilo_${index}" onchange="toggleVoziloCustom(${index})">
+                        <option value="">Izberite...</option>
+                        ${VOZILA.map(v => `<option value="${v}">${v}</option>`).join('')}
+                        <option value="Drugo">Drugo</option>
+                    </select>
+                </div>
+                <div id="vozilo_custom_${index}" style="display: none;">
+                    <label class="form-label">Drugo vozilo</label>
+                    <input type="text" name="vozilo_${index}_custom" placeholder="Vnesite registrsko">
+                </div>
+                <div>
+                    <label class="form-label">Prevoženi km</label>
+                    <input type="number" step="1" inputmode="numeric" name="vozilo_${index}_km" placeholder="0">
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function toggleVoziloCustom(index) {
+            const select = document.querySelector(`select[name="vozilo_${index}"]`);
+            const customDiv = document.getElementById(`vozilo_custom_${index}`);
+            customDiv.style.display = select.value === 'Drugo' ? 'block' : 'none';
+        }
+
+        function addOdpadek() {
+            const container = document.getElementById('odpadkiContainer');
+            const index = odpadkiCount++;
+            const div = document.createElement('div');
+            div.className = 'row';
+            div.innerHTML = `
+                <div>
+                    <label class="form-label">Odpadek ${index + 1}</label>
+                    <select name="odpadek_${index}" onchange="toggleOdpadekCustom(${index})">
+                        <option value="">Izberite...</option>
+                        ${ODPADKI.map(o => `<option value="${o.name}" data-unit="${o.unit}">${o.name} (${o.unit})</option>`).join('')}
+                        <option value="Drugo">Drugo</option>
+                    </select>
+                </div>
+                <div id="odpadek_custom_${index}" style="display: none;">
+                    <label class="form-label">Drugo - vrsta in enota</label>
+                    <input type="text" name="odpadek_${index}_custom" placeholder="npr. Plastika, kg">
+                </div>
+                <div>
+                    <label class="form-label">Količina</label>
+                    <input type="number" step="0.1" inputmode="decimal" name="odpadek_${index}_kolicina" placeholder="0">
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        function toggleOdpadekCustom(index) {
+            const select = document.querySelector(`select[name="odpadek_${index}"]`);
+            const customDiv = document.getElementById(`odpadek_custom_${index}`);
+            customDiv.style.display = select.value === 'Drugo' ? 'block' : 'none';
+        }
+
+        function updateSistemSelection() {
+            const sistem = document.getElementById('sistem').value;
+            const fazeCard = document.getElementById('fazeCard');
+            const sistemDrugoGroup = document.getElementById('sistemDrugoGroup');
+            const fazeContainer = document.getElementById('fazeContainer');
+            const sistemNaziv = document.getElementById('sistemNaziv');
+            
+            if (sistem === 'Drugo') {
+                sistemDrugoGroup.style.display = 'block';
+                fazeCard.style.display = 'none';
+                return;
+            }
+            sistemDrugoGroup.style.display = 'none';
+            if (sistem && FAZE_PO_SISTEMIH[sistem]) {
+                fazeCard.style.display = 'block';
+                sistemNaziv.textContent = sistem;
+                fazeContainer.innerHTML = FAZE_PO_SISTEMIH[sistem].map((faza, idx) => `
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="faza_${idx}" value="${faza}" onchange="updateDynamicSections()">
+                        <span>${faza}</span>
+                    </label>
+                `).join('');
+            } else {
+                fazeCard.style.display = 'none';
+            }
+            updateDynamicSections();
+        }
+
+        function updateDynamicSections() {
+            selectedFaze = [];
+            document.querySelectorAll('[id^="faza_"]:checked').forEach(cb => selectedFaze.push(cb.value));
+            const dynamicSections = document.getElementById('dynamicSections');
+            dynamicSections.innerHTML = '';
+
+            selectedFaze.forEach(faza => {
+                if (STROJI_PO_FAZAH[faza]) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="section-header">
+                            <svg class="icon-ral" viewBox="0 0 24 24"><circle cx="7" cy="16" r="3"></circle><circle cx="17" cy="16" r="3"></circle><path d="M4 16H2v-4l2-1h4l2-4h5l3 2h2v7h-2"></path><path d="M2 12h4"></path></svg>
+                            Strojno delo - ${faza}
+                        </div>
+                        ${STROJI_PO_FAZAH[faza].map(stroj => `
+                            <div class="equipment-item">
+                                <label class="form-label">${stroj}</label>
+                                <input type="number" step="0.1" inputmode="decimal" name="stroj_${sanitize(faza)}_${sanitize(stroj)}" placeholder="Ure">
+                            </div>
+                        `).join('')}
+                        <div class="row" style="margin-top: 12px;">
+                            <input type="text" placeholder="Drugo (stroj)" name="stroj_${sanitize(faza)}_custom_name">
+                            <input type="number" step="0.1" inputmode="decimal" placeholder="Ure" name="stroj_${sanitize(faza)}_custom_ure">
+                        </div>
+                    `;
+                    dynamicSections.appendChild(card);
+                }
+
+                if (MATERIALI_PO_FAZAH[faza]) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    let materialsHTML = `
+                        <div class="section-header">
+                            <svg class="icon-ral" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            Poraba materiala - ${faza}
+                        </div>`;
+                    
+                    MATERIALI_PO_FAZAH[faza].forEach(mat => {
+                        const safeName = sanitize(faza + '_' + mat.name);
+                        if (mat.type === 'dropdown-number') {
+                            materialsHTML += `
+                                <div class="row">
+                                    <div>
+                                        <label class="form-label">${mat.name}</label>
+                                        <select name="mat_${safeName}_type">
+                                            <option value="">Izberi frakcijo...</option>
+                                            ${mat.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Količina (${mat.unit})</label>
+                                        <input type="number" step="0.1" inputmode="decimal" name="mat_${safeName}_qty" placeholder="0">
+                                    </div>
+                                </div>
+                            `;
+                        } else if (mat.type === 'text-number') {
+                            materialsHTML += `
+                                <div class="row">
+                                    <div>
+                                        <label class="form-label">${mat.name} - ${mat.label || 'Vrsta'}</label>
+                                        <input type="text" name="mat_${safeName}_type" placeholder="${mat.label || 'Vrsta'}">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">Količina (${mat.unit})</label>
+                                        <input type="number" step="0.1" inputmode="decimal" name="mat_${safeName}_qty" placeholder="0">
+                                    </div>
+                                </div>
+                            `;
+                        } else if (mat.type === 'text-text-number') {
+                            materialsHTML += `
+                                <div class="row-three">
+                                    <div>
+                                        <label class="form-label">${mat.name}</label>
+                                        <input type="text" name="mat_${safeName}_type1" placeholder="${mat.label1}">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">${mat.label2}</label>
+                                        <input type="text" name="mat_${safeName}_type2" placeholder="${mat.label2}">
+                                    </div>
+                                    <div>
+                                        <label class="form-label">${mat.unit}</label>
+                                        <input type="number" step="0.1" inputmode="decimal" name="mat_${safeName}_qty" placeholder="0">
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            materialsHTML += `
+                                <div class="equipment-item">
+                                    <label class="form-label">${mat.name} (${mat.unit})</label>
+                                    <input type="number" step="0.1" inputmode="decimal" name="mat_${safeName}" placeholder="0">
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    materialsHTML += `
+                        <div class="row" style="margin-top: 12px;">
+                            <input type="text" placeholder="Drugo (material)" name="mat_${sanitize(faza)}_custom_name">
+                            <input type="text" placeholder="Količina" name="mat_${sanitize(faza)}_custom_qty">
+                        </div>
+                    `;
+                    card.innerHTML = materialsHTML;
+                    dynamicSections.appendChild(card);
+                }
+
+                if (faza === 'Liniranje') {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="section-header">
+                            <svg class="icon-ral" viewBox="0 0 24 24"><path d="M21.3 15.3l-7.6-7.6a2 2 0 0 0-2.8 0l-1.4 1.4-2.8-2.8a2 2 0 0 0-2.8 0L2.5 7.7a2 2 0 0 0 0 2.8l7.6 7.6a2 2 0 0 0 2.8 0l1.4-1.4 2.8 2.8a2 2 0 0 0 2.8 0l1.4-1.4a2 2 0 0 0 0-2.8z"></path><path d="M12 12l2 2"></path><path d="M8 8l2 2"></path></svg>
+                            Dnevno opravljeno delo - Liniranje
+                        </div>
+                        <div class="row">
+                            <div><label class="form-label">Košarka (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_kosarka" placeholder="0"></div>
+                            <div><label class="form-label">Mali nogomet (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_nogomet" placeholder="0"></div>
+                        </div>
+                        <div class="row">
+                            <div><label class="form-label">Rokomet (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_rokomet" placeholder="0"></div>
+                            <div><label class="form-label">Odbojka (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_odbojka" placeholder="0"></div>
+                        </div>
+                        <div class="row">
+                            <div><label class="form-label">Med dvema ognjema (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_ogenj" placeholder="0"></div>
+                            <div><label class="form-label">Badminton (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_badminton" placeholder="0"></div>
+                        </div>
+                        <div class="row">
+                            <div><label class="form-label">Tenis (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_tenis" placeholder="0"></div>
+                            <div><label class="form-label">Tančula (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_tancula" placeholder="0"></div>
+                        </div>
+                        <div class="row">
+                            <div><label class="form-label">Črte tekaških stez (m)</label><input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_tekaskesteze" placeholder="0"></div>
+                            <div><label class="form-label">Drugo (vrsta igre v m)</label><input type="text" name="delo_liniranje_drugo" placeholder="Vrsta: količina"></div>
+                        </div>
+                        <div class="row">
+                            <div><label class="form-label">Velike številke (kos)</label><input type="number" step="1" inputmode="numeric" name="delo_liniranje_velike_stevilke" placeholder="0"></div>
+                            <div><label class="form-label">Male številke (kos)</label><input type="number" step="1" inputmode="numeric" name="delo_liniranje_male_stevilke" placeholder="0"></div>
+                        </div>
+                        <div class="form-group" style="margin-top:10px;">
+                            <label class="form-label">Črtice (m)</label>
+                            <input type="number" step="0.1" inputmode="decimal" name="delo_liniranje_crtice" placeholder="0">
+                        </div>
+                    `;
+                    dynamicSections.appendChild(card);
+                } else if (['SBR', 'EPDM', 'SPRAY (špric)', 'Spray', '1. faza', '2. faza', 'Nanos zaključnega sloja', 'PS (j-base)'].includes(faza)) {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        <div class="section-header">
+                            <svg class="icon-ral" viewBox="0 0 24 24"><path d="M21.3 15.3l-7.6-7.6a2 2 0 0 0-2.8 0l-1.4 1.4-2.8-2.8a2 2 0 0 0-2.8 0L2.5 7.7a2 2 0 0 0 0 2.8l7.6 7.6a2 2 0 0 0 2.8 0l1.4-1.4 2.8 2.8a2 2 0 0 0 2.8 0l1.4-1.4a2 2 0 0 0 0-2.8z"></path><path d="M12 12l2 2"></path><path d="M8 8l2 2"></path></svg>
+                            Dnevno opravljeno delo - ${faza}
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Opravljeno (m²)</label>
+                            <input type="number" step="0.1" inputmode="decimal" name="delo_${sanitize(faza)}_m2" placeholder="0">
+                        </div>
+                    `;
+                    dynamicSections.appendChild(card);
+                }
+            });
+        }
+
+        function sanitize(str) { return str.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+        function handlePhotoUpload(event) {
+            const files = event.target.files;
+            if (uploadedPhotos.length + files.length > 10) {
+                showMessage('Lahko naložite največ 10 fotografij.', 'error');
+                event.target.value = '';
+                return;
+            }
+            showMessage('Nalagam in optimiziram fotografije...', 'success');
+            
+            let processed = 0;
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) {
+                    showMessage('Lahko naložite samo slike!', 'error');
+                    continue;
+                }
+                compressImage(file, 1200, 1200, 0.7).then(compressedBase64 => {
+                    uploadedPhotos.push({ id: Date.now() + '_' + i, data: compressedBase64, name: file.name, caption: '' });
+                    processed++;
+                    if (processed === files.length) {
+                        renderPhotoPreview();
+                        showMessage(`${processed} fotografij uspešno naloženih.`, 'success');
+                    }
+                }).catch(err => { console.error(err); processed++; });
+            }
+            event.target.value = '';
+        }
+
+        function compressImage(file, maxWidth, maxHeight, quality) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = event => {
+                    const img = new Image();
+                    img.src = event.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width, height = img.height;
+                        if (width > height) {
+                            if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; }
+                        } else {
+                            if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; }
+                        }
+                        canvas.width = width; canvas.height = height;
+                        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', quality));
+                    };
+                    img.onerror = error => reject(error);
+                };
+            });
+        }
+
+        function renderPhotoPreview() {
+            const container = document.getElementById('photoPreviewContainer');
+            if (uploadedPhotos.length === 0) { container.innerHTML = ''; return; }
+            container.innerHTML = `<div class="photo-preview-grid">
+                ${uploadedPhotos.map((photo, index) => `
+                    <div class="photo-preview-item">
+                        <img src="${photo.data}" alt="${photo.name}">
+                        <button type="button" class="remove-photo" onclick="removePhoto(${index})">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                        <div class="photo-caption">
+                            <input type="text" placeholder="Opis slike..." value="${photo.caption}" onchange="updatePhotoCaption(${index}, this.value)">
+                        </div>
+                    </div>
+                `).join('')}
+            </div>`;
+        }
+
+        function removePhoto(index) { uploadedPhotos.splice(index, 1); renderPhotoPreview(); showMessage('Slika odstranjena', 'success'); }
+        function updatePhotoCaption(index, caption) { uploadedPhotos[index].caption = caption; }
+
+        async function generateAndSend() {
+            const form = document.getElementById('workOrderForm');
+            if (!form.checkValidity()) { showMessage('Prosim izpolnite vsa obvezna polja (označena z rdečo obrobo)!', 'error'); form.reportValidity(); return; }
+            if (selectedDelavci.size === 0) { showMessage('Prosim izberite vsaj enega prisotnega delavca!', 'error'); return; }
+
+            const exportBtn = document.querySelector('.btn-primary');
+            const originalHTML = exportBtn.innerHTML;
+            exportBtn.innerHTML = '<svg class="icon-btn" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> Pošiljam...'; 
+            exportBtn.disabled = true;
+
+            try {
+                showMessage('Pošiljam podatke v bazo...', 'success');
+                const formData = new FormData(form);
+
+                // --- 1. DODATNA ZBIRANJA ZA LAŽJE BRANJE V SCRIPTU ---
+                
+                // Formatiranje datuma v DD. MM. YYYY obliko
+                const originalDatum = formData.get('datum');
+                if (originalDatum) {
+                    const dateObj = new Date(originalDatum);
+                    const dan = String(dateObj.getDate()).padStart(2, '0');
+                    const mesec = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const leto = dateObj.getFullYear();
+                    formData.set('datum', `${dan}. ${mesec}. ${leto}`);
+                }
+
+                // Zbiranje izbrane vrste dela v en string
+                const vrstaDelaArr = [];
+                if (formData.get('vrstaDela_nova')) vrstaDelaArr.push('Izdelava nove podlage');
+                if (formData.get('vrstaDela_obnova')) vrstaDelaArr.push('Obnova podlage');
+                formData.append('vrste_dela_skupaj', vrstaDelaArr.join(', '));
+                
+                // Zbiranje faz v en string
+                formData.append('faze_skupaj', selectedFaze.join(', '));
+
+                // Zbiranje delavcev in ur v en string
+                const delavecNames = formData.getAll('delavec_name[]');
+                const delavecUre = formData.getAll('delavec_ure[]');
+                const delavecMin = formData.getAll('delavec_min[]');
+                
+                let workerString = [];
+                delavecNames.forEach((delavec, idx) => {
+                    const timeDecimal = convertTimeToDecimal(delavecUre[idx], delavecMin[idx]);
+                    if(timeDecimal > 0) workerString.push(`${delavec} (${timeDecimal.toFixed(2)} ur)`);
+                });
+                formData.append('delavci_skupaj', workerString.join(', '));
+
+                // Zbiranje fotografij v JSON
+                formData.append('photos_json', JSON.stringify(uploadedPhotos));
+
+                // --- 2. POŠILJANJE PREKO FETCH ---
+                
+                await fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: formData,
+                    mode: 'no-cors' 
+                });
+
+                showMessage('✅ Delovni nalog je bil uspešno poslan in oddan!', 'success');
+
+                setTimeout(() => {
+                    resetForm(true); 
+                }, 2500);
+
+            } catch (error) {
+                console.error('Napaka:', error);
+                showMessage('❌ Napaka pri pošiljanju. Preverite internetno povezavo in poskusite ponovno.', 'error');
+            } finally {
+                exportBtn.innerHTML = originalHTML; 
+                exportBtn.disabled = false;
+            }
+        }
+
+        function showMessage(text, type) {
+            const container = document.getElementById('statusMessage');
+            container.innerHTML = `<div class="status-message status-${type}">${text}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 4000);
+        }
+
+        function resetForm(skipConfirm = false) {
+            if (skipConfirm || confirm('Ali ste prepričani, da želite ponastaviti obrazec in začeti znova? Vsi ne-oddani podatki se bodo izbrisali.')) {
+                document.getElementById('workOrderForm').reset();
+                document.getElementById('dynamicSections').innerHTML = '';
+                document.getElementById('vozilaContainer').innerHTML = '';
+                document.getElementById('odpadkiContainer').innerHTML = '';
+                document.getElementById('fazeCard').style.display = 'none';
+                
+                selectedDelavci.clear();
+                updateDelavciHeader();
+                document.querySelectorAll('#delavciDropdownList input[type="checkbox"]').forEach(cb => cb.checked = false);
+                renderDelavciTimeInputs();
+                
+                vozilaCount = 0; odpadkiCount = 0; uploadedPhotos = []; selectedFaze = [];
+                renderPhotoPreview(); addVozilo(); addOdpadek();
+                document.getElementById('datum').valueAsDate = new Date();
+                
+                if(!skipConfirm) {
+                    showMessage('Obrazec je bil ponastavljen.', 'success');
+                }
+                
+                // Skoči na vrh strani
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    </script>
+</body>
+</html>
