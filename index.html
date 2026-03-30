@@ -252,7 +252,18 @@
     <script>
         const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwdw5_KfZpla-HLBeWPd9hyijn3FmYofsmy9h8jYYaMxYBGiIp_mvy9W-S0G2zkkhMv/exec';
 
-        let DELAVCI = ['Deni Boskovski', 'Stojan Finkovski', 'Marjančo Jovanov', 'Goran Velkovski', 'Alban Basha', 'Nezir', 'Mani', 'Daniel Cvelbar', 'Filip Kumer'];
+        let DELAVCI = [
+            'BINE Kumer', 'DENI Boshkovski', 'MARJANČO Jovanov', 
+            'STOJAN Fimkovski', 'GORAN Velkovski', 'ANDREJ Kocev', 
+            'DANČE Danilov', 'OLIVER Zlatkov', 'TOSHE Tonevski', 
+            'DANIEL Cvelbar', 'FILIP Kumer', 'ŽIGA Kumer'
+        ];
+
+        const PODPISNIKI = [
+            'BINE Kumer', 'DANIEL Cvelbar', 'DENI Boshkovski', 
+            'FILIP Kumer', 'ŽIGA Kumer'
+        ];
+
         const VOZILA = ['Ford Transit KR LH-350', 'Renault Master KR AA-131', 'MAN TGM KR JR-085'];
         const ODPADKI = [
             { name: 'Folija', unit: 'kg' }, { name: 'Sodi', unit: 'kos' },
@@ -308,7 +319,7 @@
             addVozilo(); addOdpadek(); renderDelavciDropdown();
             
             const podpisSelect = document.getElementById('podpis');
-            podpisSelect.innerHTML += DELAVCI.map(d => `<option value="${d}">${d}</option>`).join('');
+            podpisSelect.innerHTML += PODPISNIKI.map(d => `<option value="${d}">${d}</option>`).join('');
             podpisSelect.innerHTML += `<option value="Drugo">Drugo</option>`;
         });
 
@@ -336,11 +347,21 @@
             container.innerHTML = html;
         }
 
+        // Pomožna funkcija za oblikovanje imen (IME Priimek)
+        function formatDelavecName(input) {
+            let parts = input.trim().split(/\s+/);
+            if (parts.length === 0) return '';
+            if (parts.length === 1) return parts[0].toUpperCase();
+            let ime = parts[0].toUpperCase();
+            let priimek = parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+            return ime + ' ' + priimek;
+        }
+
         function addCustomDelavec(e) {
             e.preventDefault(); e.stopPropagation();
             const ime = prompt("Vnesite ime in priimek novega delavca:");
             if (ime && ime.trim() !== '') {
-                const cleanIme = ime.trim();
+                const cleanIme = formatDelavecName(ime);
                 if (!DELAVCI.includes(cleanIme)) {
                     DELAVCI.push(cleanIme);
                     const podpisSelect = document.getElementById('podpis');
@@ -564,7 +585,7 @@
                     if (processed === totalFiles) { renderPhotoPreview(); showMessage(`${uploadedPhotos.length} fotografij uspešno naloženih.`, 'success'); }
                 }).catch(err => { 
                     console.error('Napaka pri kompresiji:', err); 
-                    showMessage(`Slike ${file.name} ni bilo mogoče obdelati (morda je v nepodprtem formatu, npr. HEIC).`, 'error');
+                    showMessage(`Slike ${file.name} ni bilo mogoče obdelati.`, 'error');
                     processed++; 
                     if (processed === totalFiles) renderPhotoPreview();
                 });
@@ -634,13 +655,15 @@
                     const dateObj = new Date(originalDatum);
                     const dan = String(dateObj.getDate()).padStart(2, '0');
                     const mesec = String(dateObj.getMonth() + 1).padStart(2, '0');
-                    payload['datum'] = `${dan}. ${mesec}. ${dateObj.getFullYear()}`;
+                    const leto = dateObj.getFullYear();
+                    payload['datum'] = `${dan}. ${mesec}. ${leto}`;
                 }
 
                 const vrstaDelaArr = [];
                 if (formData.get('vrstaDela_nova')) vrstaDelaArr.push('Izdelava nove podlage');
                 if (formData.get('vrstaDela_obnova')) vrstaDelaArr.push('Obnova podlage');
                 payload['vrste_dela_skupaj'] = vrstaDelaArr.join(', ');
+                
                 payload['faze_skupaj'] = selectedFaze.join(', ');
 
                 const delavecNames = formData.getAll('delavec_name[]');
@@ -749,7 +772,6 @@
                 payload['poraba_materiala_skupaj'] = materialTekst.join('\n\n');
                 payload['opravljeno_delo_skupaj'] = opravljenoDeloTekst.join('\n\n');
 
-                // POŠILJANJE SLIK (Enako kot v Reactu)
                 if (uploadedPhotos.length > 0) {
                     payload['slikeCount'] = uploadedPhotos.length;
                     uploadedPhotos.forEach((img, i) => {
@@ -760,7 +782,6 @@
                     payload['slikeCount'] = 0;
                 }
 
-                // SUBMIT PREKO IFRAME (Da preprečimo napake z dolgimi stringi)
                 const form = document.createElement('form'); 
                 form.method = 'POST'; 
                 form.action = GOOGLE_SHEETS_URL; 
@@ -779,7 +800,8 @@
                 
                 document.body.appendChild(form); 
                 form.submit(); 
-                document.body.removeChild(form);
+                
+                setTimeout(() => { document.body.removeChild(form); }, 500);
 
                 setTimeout(() => {
                     showMessage('✅ Delovni nalog je bil uspešno poslan in oddan!', 'success');
